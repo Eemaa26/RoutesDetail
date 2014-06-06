@@ -4,6 +4,10 @@
 library(shiny) # load shiny at beginning at both scripts
 library(shinyGridster)
 library(surveillance)
+library(boot)
+library(Hmisc)
+library(ggplot2)
+library(plotrix)
 source('sources/helper.r')
 load('sources/DatosClien.RData')
 shinyServer(function(input, output) { # server is defined within
@@ -39,8 +43,9 @@ DataDate3 <- reactive({
                                     ,'venti.dat','venti.man','INICIO','fTripDistance'))
 
   datosClienAux$Day <- as.Date(round(datosClienAux$INICIO,"days"))
+  datosClienAux$Mon <- as.Date(trunc(datosClienAux$INICIO,"months"))
   rendiruta2 <- aggregate(datosClienAux[,-c(1)],by=list(datosClienAux$Day),FUN='mean',na.rm=T)
-  rendiruta2
+  list(datos=datosClienAux,acum=rendiruta2)
   
 })
 
@@ -163,28 +168,67 @@ output$VehicleOut <- renderUI({
 output$Analisis1 <- renderPlot({
   
   data1 <-  DataDate()
-  data2 <- DataDate3()
+  data2 <- DataDate3()$acum
   #browser()
   layout(matrix(c(1,2,3,3),2,2,byrow=T))
   ####Rendimiento
   boxplot(data1$rendimiento)
   points(mean(data1$rendimiento),col='blue',pch=19,ylab='km/gal')
+  legend('topleft',pch=19,col='blue',legend='Media')
+  text(mean(data1$rendimiento),labels=round(mean(data1$rendimiento),2),pos=1,col='blue')
   title(main='Distribución histórica km/gal')
   ##
   boxplot(data2$fTripDistance)
   points(mean(data2$fTripDistance),col='blue',pch=19,ylab='km')
+  legend('topleft',pch=19,col='blue',legend='Media')
+  legend('topright',legend=paste('ds',round(sd(data2$fTripDistance,na.rm=T),2)))
+  text(mean(data2$fTripDistance),labels=round(mean(data2$fTripDistance,na.rm=T),2),pos=1,col='blue')
+  
   title(main='Distribución histórica distancia ruta km')
-  
-  ####Tendencia 
-  plot(data2$Day,data2$rendimiento,type='l',ylab='km/gal',xlab='Fecha')
+    ####Tendencia 
+  plot(data2$Day,data2$rendimiento,type='n',ylab='km/gal',xlab='Fecha'
+       ,ylim=c(0,max(data2$rendimiento)*1.25))
+ 
+ # polygon(c(rev(ci[,1]), (ci[,1])), c(rev(ci$x[ ,2]), ci$x[ ,1]), col = 'grey80', border = NA)
+  # model
+  lines(data2$Day,data2$rendimiento)
   title(main='Tendencia de consumo en ruta km/gal')
-  
-  
   
 })
 
 
+output$Analisis2 <- renderPlot({
+  data1 <-  DataDate()
+  data2 <- DataDate3()$acum
+ bsci <- function(x){  
+   if(length(x) == 1)return(rep(x,2))
+   if(sd(x)== 0 & length(x)>1) x[1] <- x[2]+rnorm(1,0,0.5)
+   mean.boot <-   function(x,ind)return(c(mean(x[ind]),var(x[ind])/length(ind)))
+   
+   out <- boot(x,mean.boot,999)
+   ci <- as.vector(boot.ci(out)$student[,4:5])
 
+   return(ci)
+ }
+ data3 <- DataDate3()$datos
+ ci <- aggregate(data3$rendimiento,by=list(data3$PLACA),FUN=bsci)
+  #browser()
+  aux1<- do.call(rbind,list(ci$x))
+  rownames(aux1) <- 1:NROW(aux1)
+  CI1 <- data.frame(ci[,1],aux1[match(rownames(ci), rownames(aux1)),])
+  colnames(CI1) <- c('Placa','UL','LL')
+  CI2<- merge(CI1,data1[,1:2],by='Placa')
+  
+  
+  plotCI(CI2[,4],1:NROW(CI2),ui=CI2[,3], li=CI2[,2]
+         ,err="x",lwd=2,col="red",scol="blue",xlim=c(0,16),yaxt='n',ylab='',xlab='km/gal')
+  axis(2,at=1:NROW(CI2),labels=CI2[,1],las=1)
+  axTick <- sort(c(seq(0,15,0.5),mean(CI2[,4])))
+  axis(1,at=axTick,labels=round(axTick,1),cex=0.7)
+  abline(v=mean(CI2[,4]),col='red',lty=2)
+  browser()
+  data3
+})
 
   
 })

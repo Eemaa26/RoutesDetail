@@ -22,7 +22,7 @@ shinyUI(fluidPage(img(src='encabezado2.jpg'), # standard shiny layout, controls 
     tags$script(src = 'justgage_binding.js')
   ),
   
-  titlePanel("Dashboard Detalle Rutas" ), 
+  titlePanel("Tablero de control de rutas" ), 
   br(),
   sidebarLayout( 
     sidebarPanel(
@@ -43,7 +43,7 @@ shinyUI(fluidPage(img(src='encabezado2.jpg'), # standard shiny layout, controls 
                  tabPanel('Resumen rutas',chartOutput("flow"),icon=icon("bar-chart-o")),       
           tabPanel('Detalle rutas',h3(textOutput("RutaSel")),uiOutput('VehicleOut'),icon=icon("tachometer")),
           tabPanel('Análisis rutas',plotOutput("Analisis1"),icon=icon("bar-chart-o")) ,
-                 tabPanel('Análisis vehìculos','',icon=icon("bar-chart-o"))         
+                 tabPanel('Análisis vehìculos',plotOutput("Analisis2"),icon=icon("bar-chart-o"))         
                  
       )
       

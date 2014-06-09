@@ -48,9 +48,15 @@ DataDate3 <- reactive({
   list(datos=datosClienAux,acum=rendiruta2)
   
 })
-
-
-
+ 
+output$downloadData <- downloadHandler(  
+  filename = function() { 
+    paste(input$dates[1],'dataRuta', input$dates[2], '.csv', sep='') 
+  },               
+  content = function(file) {  
+    write.csv(DataDate(), file,row.names=F) 
+  }  
+)
 
 
 #Route name
@@ -226,12 +232,17 @@ output$Analisis2 <- renderPlot({
   axTick <- sort(c(seq(0,15,0.5),mean(CI2[,4])))
   axis(1,at=axTick,labels=round(axTick,1),cex=0.7)
   abline(v=mean(CI2[,4]),col='red',lty=2)
+<<<<<<< HEAD
   browser()
   str(data3)
   cor(na.omit(data3[,c(2:4,6:9)]))
   clust <- kmeans(na.omit(data3[,c(2:4,6:9)]),centers=3)
   table(clust$cluster)
   summary(lm(rendimiento ~ liGBTime+PerIdle+Turbo.dat+Torque.dat+venti.dat,data=data3))
+=======
+  title(main='Intervalos de confianza al 95 % para el rendimiento',cex=0.9)
+
+>>>>>>> 55eda8eb00acaf1227fa5bc980ca0d7a370c094d
 })
 
   

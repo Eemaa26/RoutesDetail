@@ -22,7 +22,7 @@ shinyUI(fluidPage(img(src='encabezado2.jpg'), # standard shiny layout, controls 
     tags$script(src = 'justgage_binding.js')
   ),
   
-  titlePanel("Tablero de control de rutas" ), 
+  titlePanel("Dashboard Detalle Rutas" ), 
   br(),
   sidebarLayout( 
     sidebarPanel(

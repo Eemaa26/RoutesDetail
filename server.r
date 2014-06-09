@@ -227,7 +227,11 @@ output$Analisis2 <- renderPlot({
   axis(1,at=axTick,labels=round(axTick,1),cex=0.7)
   abline(v=mean(CI2[,4]),col='red',lty=2)
   browser()
-  data3
+  str(data3)
+  cor(na.omit(data3[,c(2:4,6:9)]))
+  clust <- kmeans(na.omit(data3[,c(2:4,6:9)]),centers=3)
+  table(clust$cluster)
+  summary(lm(rendimiento ~ liGBTime+PerIdle+Turbo.dat+Torque.dat+venti.dat,data=data3))
 })
 
   

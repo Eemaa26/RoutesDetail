@@ -48,9 +48,15 @@ DataDate3 <- reactive({
   list(datos=datosClienAux,acum=rendiruta2)
   
 })
-
-
-
+ 
+output$downloadData <- downloadHandler(  
+  filename = function() { 
+    paste(input$dates[1],'dataRuta', input$dates[2], '.csv', sep='') 
+  },               
+  content = function(file) {  
+    write.csv(DataDate(), file,row.names=F) 
+  }  
+)
 
 
 #Route name
@@ -226,8 +232,8 @@ output$Analisis2 <- renderPlot({
   axTick <- sort(c(seq(0,15,0.5),mean(CI2[,4])))
   axis(1,at=axTick,labels=round(axTick,1),cex=0.7)
   abline(v=mean(CI2[,4]),col='red',lty=2)
-  browser()
-  data3
+  title(main='Intervalos de confianza al 95 % para el rendimiento',cex=0.9)
+
 })
 
   

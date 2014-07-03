@@ -81,13 +81,20 @@ DataDate2 <- reactive({
 })
  
 output$flow <- renderChart({
-  
+          
          data <- DataDate2() 
+         if(NROW(data) < 10){
+           height1 <- 500
+         }else {
+           
+           height1 <- NROW(data)*17
+         }
+         
          data <- data[,c(1,2)]
          colnames(data)<- c('Ruta','km/gal')
          
         a <- rHighcharts:::Chart$new()
-        a$chart(type = "bar",height=600)
+        a$chart(type = "bar",height=height1)
         a$plotOptions(column = list(stacking = "normal"))
         a$title(text = "Rendimiento por ruta")
         a$yAxis(title = list(text = "km/gal"))
@@ -202,6 +209,16 @@ output$Analisis1 <- renderPlot({
   
 })
 
+HeigthFun <- reactive({
+  n <- NROW(DataDate3()$datos)
+  if(n < 12){
+    400 
+  }else {400+(10/12)*(n-12)}
+      })
+  
+  
+  
+
 
 output$Analisis2 <- renderPlot({
   data1 <-  DataDate()
@@ -225,7 +242,7 @@ output$Analisis2 <- renderPlot({
   colnames(CI1) <- c('Placa','UL','LL')
   CI2<- merge(CI1,data1[,1:2],by='Placa')
   
-  
+  par()
   plotCI(CI2[,4],1:NROW(CI2),ui=CI2[,3], li=CI2[,2]
          ,err="x",lwd=2,col="red",scol="blue",xlim=c(0,16),yaxt='n',ylab='',xlab='km/gal')
   axis(2,at=1:NROW(CI2),labels=CI2[,1],las=1)
@@ -233,7 +250,7 @@ output$Analisis2 <- renderPlot({
   axis(1,at=axTick,labels=round(axTick,1),cex=0.7)
   abline(v=mean(CI2[,4]),col='red',lty=2)
 
-  browser()
+  
   str(data3)
   cor(na.omit(data3[,c(2:4,6:9)]))
   clust <- kmeans(na.omit(data3[,c(2:4,6:9)]),centers=3)
@@ -241,7 +258,7 @@ output$Analisis2 <- renderPlot({
   summary(lm(rendimiento ~ liGBTime+PerIdle+Turbo.dat+Torque.dat+venti.dat,data=data3))
   title(main='Intervalos de confianza al 95 % para el rendimiento',cex=0.9)
 
-})
+}, height=HeigthFun)
 
   
 })

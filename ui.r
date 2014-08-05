@@ -5,7 +5,8 @@ library(shiny) # load shiny at beginning at both scripts
 library(shinyGridster)
 library(rHighcharts)
 source('sources/helper.r')
-shinyUI(fluidPage(img(src='encabezado2.jpg'), # standard shiny layout, controls on the
+load('sources/NameClien.RData')
+shinyUI(fluidPage(h2(paste('Dashboard combustible rutas',NameCliente)), # standard shiny layout, controls on the
   # left, output on the right
   tags$head(
     tags$link(rel = 'stylesheet', type = 'text/css', href = 'styles.css'),
@@ -22,7 +23,7 @@ shinyUI(fluidPage(img(src='encabezado2.jpg'), # standard shiny layout, controls 
     tags$script(src = 'justgage_binding.js')
   ),
   
-  titlePanel("Dashboard Detalle Rutas" ), 
+  titlePanel("Detalle por ruta" ), 
   br(),
   sidebarLayout( 
     sidebarPanel(

@@ -10,6 +10,7 @@ library(ggplot2)
 library(plotrix)
 source('sources/helper.r')
 load('sources/DatosClien.RData')
+load('sources/NameClien.RData')
 shinyServer(function(input, output) { # server is defined within
   # these parentheses
 #Machine, date and engine select
@@ -62,6 +63,7 @@ output$downloadData <- downloadHandler(
 #Route name
 output$RutaSel <- renderText(
   input$Ruta)
+output$NameCliente <- renderText(as.character(NameCliente))
 #Acumulado por ruta
 DataDate2 <- reactive({ 
   fechaIni <- strptime(as.character(input$dates[1]),'%Y-%m-%d')
@@ -87,7 +89,7 @@ output$flow <- renderChart({
            height1 <- 500
          }else {
            
-           height1 <- NROW(data)*17
+           height1 <- NROW(data)*19
          }
          
          data <- data[,c(1,2)]
@@ -96,7 +98,7 @@ output$flow <- renderChart({
         a <- rHighcharts:::Chart$new()
         a$chart(type = "bar",height=height1)
         a$plotOptions(column = list(stacking = "normal"))
-        a$title(text = "Rendimiento por ruta")
+        a$title(text = "Rendimiento por ruta en km/gal")
         a$yAxis(title = list(text = "km/gal"))
      
         x <- as.data.frame(data[,2])
@@ -194,7 +196,7 @@ output$Analisis1 <- renderPlot({
   boxplot(data2$fTripDistance)
   points(mean(data2$fTripDistance),col='blue',pch=19,ylab='km')
   legend('topleft',pch=19,col='blue',legend='Media')
-  legend('topright',legend=paste('ds',round(sd(data2$fTripDistance,na.rm=T),2)))
+  legend('topright',legend=paste('de',round(sd(data2$fTripDistance,na.rm=T),2)))
   text(mean(data2$fTripDistance),labels=round(mean(data2$fTripDistance,na.rm=T),2),pos=1,col='blue')
   
   title(main='Distribución histórica distancia ruta km')
